@@ -1,4 +1,4 @@
-Play Wordle on Google Sheets with Google Apps Script!
+Play Wordle on Google Sheets with Google Apps Script.
 
 
 # [Make a copy of the Google Sheet here!](https://docs.google.com/spreadsheets/d/1QUwNrr4rBDTNcsto9bkQzo58uXjQFm0pp8nv17WFaa8/copy)
