@@ -5,13 +5,10 @@ function onInstall(e) {
 function onOpen() {
   var ui = SpreadsheetApp.getUi();
   ui.createMenu('► Wordle ◄')
-    .addSubMenu(SpreadsheetApp.getUi().createMenu('Install Game')
-      .addItem('🔛  Run Me Twice', 'createOnEditTrigger'))
-    .addSeparator()
     .addItem('🔄  Start New Game', 'newGame')
     .addSeparator()
-    .addSubMenu(SpreadsheetApp.getUi().createMenu('Settings')
-      .addItem('ℹ️  Information', 'infoAlert'))
+    .addSubMenu(SpreadsheetApp.getUi().createMenu('Install Game')
+      .addItem('🔛  Run Me Twice', 'createOnEditTrigger'))
     .addToUi();
 }
 
@@ -25,17 +22,6 @@ function getId() {
   var idRange = settings.getRange("C2");
   var idValue = idRange.getDisplayValues();
   return idValue;
-}
-
-/**
- * Increments the current ID by one.
- */
-function incrementId() {
-  var ss = SpreadsheetApp.getActiveSpreadsheet();
-  var settings = ss.getSheetByName("SETTINGS");
-  var idRange = settings.getRange("C2");
-  var currentId = getId();
-  idRange.setValue(parseInt(currentId) + 1);
 }
 
 /**
@@ -66,7 +52,12 @@ function newGame() {
 
   checkBoxRange.setValues(checkBoxValues);
   allRows.setFontColor("#000000");
-  incrementId();
+
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var settings = ss.getSheetByName("SETTINGS");
+  var idRange = settings.getRange("C2");
+  var currentId = getId();
+  idRange.setValue(parseInt(currentId) + 1);
 }
 
 /**
@@ -143,8 +134,9 @@ function playWordle(e) {
       var currentWordString = currentWord.toLowerCase();
 
       /**
-       * Gets the row of letters as "guessArray".
+       * Gets the row of letters as "guessArray" by accessing each letter from each square and pushing to an array. Slow.
        */
+      /*
       var guessArrayRaw = new Array();
       guessArrayRaw.push(squareOne.offset(offsetIndex, 0).getDisplayValue());
       guessArrayRaw.push(squareOne.offset(offsetIndex, 9).getDisplayValue());
@@ -152,24 +144,30 @@ function playWordle(e) {
       guessArrayRaw.push(squareOne.offset(offsetIndex, 27).getDisplayValue());
       guessArrayRaw.push(squareOne.offset(offsetIndex, 36).getDisplayValue());
 
-      //comment
       var guessArray = guessArrayRaw.map(function(v) {
         return v.toLowerCase();
       });
+      */
 
       /**
-       * Creates an array of objects containing the row letters.
-       * Each letter is given a designatation:
-       * match = letter found in correct position
-       * valid = letter found in wrong position
-       * invalid = letter not found
-       * 
-       * All letters are defaulted to invalid and compared to the current Wordle letter by letter.
+       * Gets the row of letters as "guessArray" by getting the guess entered in column C. Converts to an array.
        */
+      var guessString = play.getRange("C" + index).getDisplayValue().toLowerCase();
+      var guessArray = guessString.split("");
 
+      /**
+       * Creates an array of objects containing each row letter with a designation.
+       * Designations include:
+       * match = guess letter is found and in correct position compared to Wordle
+       * valid = guess letter is found but in wrong position
+       * invalid = letter not found in Wordle
+       * 
+       * All letters are defaulted to invalid and compared to the current Wordle letter by letter and given a value in the object.
+       */
       row = [];
       var wordle = currentWordString;
 
+      //set invalid for all objects
       guessArray.forEach(i => {
         row.push({
           letter: i,
@@ -177,6 +175,8 @@ function playWordle(e) {
         });
       });
 
+      //if object letter matches current Wordle index, replace invalid with match
+      //if a match, replace the letter with a zero to no longer consider it
       row.forEach((i, index) => {
         if (i.letter == wordle[index]) {
           i.fill = "match";
@@ -184,6 +184,7 @@ function playWordle(e) {
         }
       });
 
+      //if object letter is included in the Wordle (after checking for matches and replacing matches with 0), replace invalid with valid
       row.forEach((i) => {
         if (i.fill != "match" && wordle.includes(i.letter)) {
           i.fill = "valid";
@@ -191,11 +192,17 @@ function playWordle(e) {
         }
       });
 
+      //otherwise, all remaining objects must remain invalid since match and validity are not true
+
       //console.log("row[]: " + JSON.stringify(row));
 
-      //initial value to offset across all squares, from column K to column AU
-      //in the loop, y is incremented by 9 to fill each square's background from left to right
-      //the loop stops when y hits 36 (i.e. all 5 squares are considered)
+
+      /**
+       * Create a while loop to iterate over all five squares for the current row number (index), with y initially set to 0.
+       * Increment y by 9 at a cap of 36, offsetting horizontlaly from the square in column K to the square in column AU.
+       * Loop through the array of objects ("row") and for each element, check the "fill".
+       * The while loop ends when y hits 36, i.e. all 5 squares are iterated over.
+       */
       var y = 0;
       
       while (y <= 36) {
@@ -244,7 +251,7 @@ function playWordle(e) {
 }
 
 /**
- * Creates an on edit trigger.
+ * Creates an on edit trigger for easy install in the menu.
  */
 function createOnEditTrigger(e) {
   var triggers = ScriptApp.getProjectTriggers();
