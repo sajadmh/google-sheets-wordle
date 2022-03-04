@@ -201,6 +201,55 @@ row.forEach((i) => {
 });
 ```
 
+Finally, we will loop through the current row's squares and set a background color for each square. If object 0 in the `row` array is a match, the first square will turn green. If it's valid, it will turn yellow. If it's invalid, it will turn gray.
+
+Due to the spreadsheet's design, the squares go from column K to column AU. There are 9 columns we need to jump from square to square, going from left to right.
+
+First, we will create initialize `var y = 0` so that we offset +9 horizonttally across the sheet and halt the loop once we reach 36 columns (5 squares) across.
+
+Within the `while` loop, we will also use forEach to go through the `row` array of objects. For each object we access, we will check its letter and find the cell for that letter in the keyboard mockup in a `var keyboard` array that we havae created that points each letter to the appropriate cell in the keyboard.
+
+If the `fill` in the object of the `row` array is a `match`, we will set the background color of the current square we are iterating over to green. If the `fill` is `valid` then we will set it to yellow, but we must check if the keyboard is already green, meaning in a previous guess this letter was a match, but now it's moved to the wrong spot in the new guess. We will keep the keyboard green, but set the square yellow, so a match supersedes a valid. Last, we will check if the `fill` is `invalid`, first checking if the letter in the keyboard is either green or yellow. If so, it will only set the square to gray, but keep the keyboard as-is. Per iteration, we add 9 to `var y` to end the operation at 36, or 5 squares total.
 
 
+```
+var y = 0;
 
+while (y <= 36) {
+  row.forEach((i) => {
+
+    letter = i.letter;
+    let key = keyboard.find(key => key.letter == letter).cell;
+
+    if (i.fill == "match") {
+      squareOne.offset(offsetIndex, y).setBackground("#6aaa64");
+      squareOne.offset(offsetIndex, y).setFontColor("#FFFFFF");
+      play.getRange(key).setBackground("#6aaa64");
+      play.getRange(key).setFontColor("#ffffff");
+    } else if (i.fill == "valid") {
+      if (play.getRange(key).getBackground() == "#6aaa64") {
+        squareOne.offset(offsetIndex, y).setBackground("#c9b458");
+        squareOne.offset(offsetIndex, y).setFontColor("#ffffff");
+      } else {
+        squareOne.offset(offsetIndex, y).setBackground("#c9b458");
+        squareOne.offset(offsetIndex, y).setFontColor("#ffffff");
+        play.getRange(key).setBackground("#c9b458");
+        play.getRange(key).setFontColor("#ffffff");
+      }
+    } else if (i.fill == "invalid") {
+      if (play.getRange(key).getBackground() == "#6aaa64" || play.getRange(key).getBackground() == "#c9b458") {
+        squareOne.offset(offsetIndex, y).setBackground("#787c7e");
+        squareOne.offset(offsetIndex, y).setFontColor("#ffffff");
+      } else {
+        squareOne.offset(offsetIndex, y).setBackground("#787c7e");
+        squareOne.offset(offsetIndex, y).setFontColor("#ffffff");
+        play.getRange(key).setBackground("#787c7e");
+        play.getRange(key).setFontColor("#ffffff");
+      }
+    }
+
+    y += 9;
+
+  });
+}
+```
