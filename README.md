@@ -202,7 +202,7 @@ Finally, we will loop through the current row's squares and set a background col
 
 Due to the spreadsheet's design, the squares go from column K to column AU. There are 9 columns we need to jump from square to square, going from left to right.
 
-First, we will create initialize `var y = 0` so that we offset +9 horizonttally across the sheet and halt the loop once we reach 36 columns (5 squares) across.
+First, we will create initialize `var y = 0` so that we offset +9 horizontally across the sheet and halt the loop once we reach 36 columns (5 squares) across.
 
 Within the `while` loop, we will also use forEach to go through the `row` array of objects. For each object we access, we will check its letter and find the cell for that letter in the keyboard mockup in a `var keyboard` array that we havae created that points each letter to the appropriate cell in the keyboard.
 
