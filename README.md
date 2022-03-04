@@ -1,30 +1,35 @@
-Play Wordle on Google Sheets with Google Apps Script.
-
-
 # [Make a copy of the Google Sheet here!](https://docs.google.com/spreadsheets/d/1QUwNrr4rBDTNcsto9bkQzo58uXjQFm0pp8nv17WFaa8/copy)
 
+<br/><br/>
+<p align="center">
 <img src="https://github.com/sajadmh/google-sheets-wordle/blob/main/assets/demo.gif" width="800"></img>
+</p>
+<br/><br/>
 
-Instructions:
+**Instructions:**
 
-1. Make a copy of the spreadsheet linked above
-2. In the menu, click into Wordle > Install Game > Run Me Twice
-3. [Authorize the script in the pop-up](https://support.google.com/cloud/answer/7454865)
+1. [Make a copy of the spreadsheet linked here](https://docs.google.com/spreadsheets/d/1QUwNrr4rBDTNcsto9bkQzo58uXjQFm0pp8nv17WFaa8/copy)
+2. From the menu, click into Wordle > Install Game > Run Me Twice		
+3. [When prompted, give the script authorization to run](https://support.google.com/cloud/answer/7454865)	
 4. After authorizing, follow step 2 again to successfully install the onEdit trigger
 5. You should be ready to play the game!
 
-Tips:
+**Tips:**
 
 * To start a new game with a new word, go to the menu, click into Wordle > Start New Game
-* This will increment the game into the next word and reset the submissions and colors
-* To create a custom list of words, go to Settings and replace the hidden cells in column C
+* This will increment ID by one to move to the next word and will reset the guesses, squares and keyboard backgrounds
+* To create a custom list of words, go to Settings and replace the blacked out cells in column C with different words
 * To view the script, go to Extensions > Apps Script
 
 ----
 
-# **Guide:**
+**Guide:**
 
-First, create a menu item through the UI `SpreadsheetApp.getUi()`:
+This game utilizes conditional formatting and formulas to split a guess into each square, and to unhide a checkbox if a guess is five letters long.
+
+With a menu feature, a Settings sheet containing a list of words and a corresponding ID, along with an array of objects to compare the guess with the actual Wordle, we can create our own version all within Google Sheets.
+
+First, create a menu item through the UI utilizin `SpreadsheetApp.getUi()`:
 
 ```
 function onOpen() {
@@ -38,10 +43,10 @@ function onOpen() {
 }
 ```
 
-One feature will reset the game and move on to the next Wordle.
-The other feature will be for installing the onEdit trigger that checks user's guess with the click of a checkbox.
+In the menu, one feature will reset the game and move on to the next Wordle.
+The other feature will be used for installing the onEdit trigger that looks out for a user's click of a checkbox.
 
-Then, we will create a function to get the current ID in the Settings sheet in cell C2:
+We will create a function to get the current ID in the Settings sheet in cell C2. This is the ID that references the current game/word:
 
 ```
 function getId() {
@@ -53,14 +58,14 @@ function getId() {
 }
 ```
 
-In `function newGame() { ... }` we will access each square and reset the background fill:
+Then we will cerate a `function newGame() { ... }` that will start a new game, removing the guesses and background colors by accessing each square and setting to white:
 
 ```
 var allRows = play.getRangeList(["K3", "T3", "AC3", "AL3", "AU3", "K5", "T5", "AC5", "AL5", "AU5", "K7", "T7", "AC7", "AL7", "AU7", "K9", "T9", "AC9", "AL9", "AU9", "K11", "T11", "AC11", "AL11", "AU11", "K13", "T13", "AC13", "AL13", "AU13"]);
 allRows.setBackground("#FFFFFF");
 ```
 
-We will also access the "keyboard" and reset each fill:
+We will also access the "keyboard" and reset each bacakground:
 
 ```
 var allKeys = play.getRangeList(["G17","AK19","Y19","S17","P15","Y17","AE17","AK17","AT15","AQ17","AW17","BC17","AW19","AQ19","AZ15","BF15","D15","V15","M17","AB15","AN15","AE19","J15","S19","AH15","M19"]);
@@ -68,7 +73,7 @@ allKeys.setBackground("#D3D6DA");
 allKeys.setFontColor("#000000");
 ```
 
-A `for loop` will uncheck each checkbox (in column BE, rows 3 through 13) that allows the user to submit their guess:
+A `for loop` will uncheck each checkbox (in column BE, rows 3 through 13) that was checked off by the user when submitting their guess:
 
 ```
 var checkBoxRange = ss.getRange('BE3:BE13');
@@ -82,7 +87,7 @@ for (var i = 0; i < checkBoxValues.length; i++) {
 }
 ```
 
-We will clear the user's words on the left column:
+We will also clear the user's words/guesses in the left column:
 
 ```
 var inputRange = ss.getRange('C3:C13');
@@ -98,16 +103,16 @@ idRange.setValue(parseInt(currentId) + 1);
 
 **Finally, we get into the Wordle function!**
 
-When a user checks the box to submit their guess, we must get the checkbox's row number and create an array to store each of the five letters in their guess.
+When a user checks the checkbox to submit their guess, we must get the checkbox's row and create an array to store each of the five letters in their guess, e.g. `CRANE` -> `[C,R,A,N,E]`.
 
 `var index = e.range.getRow();` gets the current row.
 
 `var checkboxColumnInt = 57;` refers to the column where the checkboxes sit.
 
-`var runBox = play.getRange(index, checkboxColumnInt);` refers to the row where the checkbox that is checked off (onEdit) sits.
+`var runBox = play.getRange(index, checkboxColumnInt);` refers to the specific checkbox that was checked off.
 
-Two if statements will check our operation. The first ensures that the checkbox that is checked off is an official checkbox in column BE/#57.
-If true, then it will check if the edit (based on the onEdit trigger) turned the checkbox to true (i.e. it was checked, not unchecked or other):
+Two if statements will check our operation before doing anything. The first ensures that the checkbox that is checked off is an official checkbox in column BE/#57.
+If true, then it will check if the edit (based on the onEdit trigger) turned the checkbox to true (in other words, we ensure that the user checked the box, not unchecked the box):
 
 ```
 if (e.range.getColumn() == checkboxColumnInt) {
@@ -117,18 +122,19 @@ if (e.range.getColumn() == checkboxColumnInt) {
 }
 ```
 
-If both if statements above are true (the checkbox is checked off in column 57), first we will get the Wordle and then compare the guess against it:
+If both if statements above are true (the checkbox is checked true in column 57), first we will get the current Wordle and then compare the user's guess against it:
 
-`var currentId = getId();` gets the ID in the Settings sheet.
+`var currentId = getId();` gets the ID at the top in the Settings sheet (cell C2).
+
 `var searchIdRange = settings.getRange("B5:B").getValues();` scans the column of IDs in the Settings sheet.
 
 The following finds the current game ID in the list of IDs, starting from row 5.
 
-It will loop through the list of IDs, and once it finds it, will set the `var wordPosition` to the cell where the ID and Wordle answer sit.
+It will loop through the list of IDs, and once it finds it, will set the `var wordPosition` to the cell where the ID and Wordle answer sits.
 
 For example, if the current game ID is `11`, the for loop will find ID `11` in cell `B15`, setting `wordPosition = B15`.
 
-With the ID cell position, we will find the `currentWord` by getting the range `B15` and offsetting to the right by one to access cell `C15` to `getDisplayValue()`, which is the Wordle.
+With the ID cell position, we will find the `currentWord` by getting the range `B15` and offsetting to the right by one to access cell `C15` to `getDisplayValue()`, which is the Wordle as a string.
 
 Then, we will convert the wordle to all lowercase (just in case). `currentWordString` contains the current Wordle answer.
 
