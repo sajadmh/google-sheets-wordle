@@ -97,9 +97,109 @@ var currentId = getId();
 idRange.setValue(parseInt(currentId) + 1);
 ```
 
-Finally, we get into the Wordle function:
+**Finally, we get into the Wordle function!**
 
-When a user checks the box to submit their guess, we must get the row number and create an array to store each of the five letters in that row:
+When a user checks the box to submit their guess, we must get the checkbox's row number and create an array to store each of the five letters in their guess.
+
+`var index = e.range.getRow();` gets the current row.
+
+`var checkboxColumnInt = 57;` refers to the column where the checkboxes sit.
+
+`var runBox = play.getRange(index, checkboxColumnInt);` refers to the row where the checkbox that is checked off (onEdit) sits.
+
+Two if statements will check our operation. The first ensures that the checkbox that is checked off is an official checkbox in column BE/#57.
+If true, then it will check if the edit (based on the onEdit trigger) turned the checkbox to true (i.e. it was checked, not unchecked or other):
+
+```
+if (e.range.getColumn() == checkboxColumnInt) {
+  if (runBox.isChecked() == true) {
+    ...
+  }
+}
+```
+
+If both if statements above are true (the checkbox is checked off in column 57), first we will get the Wordle and then compare the guess against it:
+
+`var currentId = getId();` gets the ID in the Settings sheet.
+`var searchIdRange = settings.getRange("B5:B").getValues();` scans the column of IDs in the Settings sheet.
+
+The following finds the current game ID in the list of IDs, starting from row 5.
+
+It will loop through the list of IDs, and once it finds it, will set the `var wordPosition` to the cell where the ID and Wordle answer sit.
+
+For example, if the current game ID is `11`, the for loop will find ID `11` in cell `B15`, setting `wordPosition = B15`.
+
+With the ID cell position, we will find the `currentWord` by getting the range `B15` and offsetting to the right by one to access cell `C15` to `getDisplayValue()`, which is the Wordle.
+
+Then, we will convert the wordle to all lowercase (just in case). `currentWordString` contains the current Wordle answer.
+
+
+```
+var wordPosition;
+var count = 4; //ID ranges start from row 5
+
+for (var i = 0; i < searchIdRange.length; i++) {
+  count += 1;
+    if (searchIdRange[i][0] == currentId) {
+      wordPosition = "B" + count;
+      break;
+    }
+}
+
+var currentWord = settings.getRange("" + wordPosition + "").offset(0, 1).getDisplayValue();
+var currentWordString = currentWord.toLowerCase();
+```
+
+To get the row's guess, we get the current index (provided by the current checkbox edit) and add the number `C`. Convert the guess to all lowercase, and then split to create an array out of the string.
+
+```
+var guessString = play.getRange("C" + index).getDisplayValue().toLowerCase();
+var guessArray = guessString.split("");
+```
+
+Next, we will create an array of objects. Each object will contain one of the letters from the guess for the current round, along with a "fill" that designates whether the background color should be green/yellow/grey. The designations are match, valid, and invalid.
+
+`row = [];` creates an empty array that will hold all the objects (i.e. letters + their status).
+`var wordle = currentWordString;` calls on the current Wordle answer and duplicates it, as we will iterate over `wordle` and remove matches.
+
+Three `forEach` functions will add to the `row` array, and then declare whether a letter is valid or a match.
+
+The first function will access the current guess `guessArray` and add each element/letter from the `guessArray` to the `row` array as `letter` and set each object `fill` as `invalid` by default.
+
+```
+guessArray.forEach(i => {
+  row.push({
+    letter: i,
+    fill: "invalid"
+  });
+});
+```
+
+Then, we will access the newly completed `row` array of objects. With forEach, we will check each letter in each object and compare each letter against the `wordle` string, comparing against the current `forEach` index (not to be confused with the previously declared index). The current index is the current object being scanned. If the guess is `CRANE` and we are in position 2, we are accessing the "A" in `CR[A]NE` which is position 2. If the Wordle is `TRAIN`, then the  `wordle[index]` would match `CR[A]NE` and `TR[A]IN`, as both letters match in the same position.
+
+If it is an exact letter and position match, we will replace the current object's `fill` from `invalid` to `match` then remove said letter from the `wordle` by replacing it with a `0` so that it can no longer be considered "valid" in the next forEach function.
+
+```
+row.forEach((i, index) => {
+  if (i.letter == wordle[index]) {
+    i.fill = "match";
+    wordle = wordle.replace(i.letter, "0");
+  }
+});
+```
+
+In this forEach function, we check validity. All matches will become `0`s, so guess `CRANE` for Wordle `TRAIN` would revise the `wordle` var to `T00IN` since the "RA" were exact matches.
+
+When we check for validity, we first want to ensure that we won't replace a `fill` that has been designated a `match`. We will also check if the `wordle` `T00IN` includes each letter in `CRANE`. In this example, "N" from `CRANE` is valid when searching the `wordle` `T00IN`. It's not an exact match, i.e. in the wrong position, but a correct letter and is designated a `valid` `fill`.
+
+```
+row.forEach((i) => {
+  if (i.fill != "match" && wordle.includes(i.letter)) {
+    i.fill = "valid";
+    wordle = wordle.replace(i.letter, "0");
+  }
+});
+```
 
 
 
