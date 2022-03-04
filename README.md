@@ -13,8 +13,8 @@
 
 # Tips
 
-* To start a new game with a new word, go to the menu, click into Wordle > Start New Game
-* This will increment ID by one to move to the next word and will reset the guesses, squares and keyboard backgrounds
+* To start a new game with a new word, go to the menu, click into **Wordle > Start New Game**
+* This will increment the ID at the top of the Settings by one to move to the next word and will reset the guesses, squares and keyboard colors
 * To create a custom list of words, go to Settings and replace the blacked out cells in column C with different words
 * To view the script, go to Extensions > Apps Script
 
