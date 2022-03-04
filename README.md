@@ -1,10 +1,10 @@
 # [Make a copy of the Google Sheet here!](https://docs.google.com/spreadsheets/d/1QUwNrr4rBDTNcsto9bkQzo58uXjQFm0pp8nv17WFaa8/copy)
 
-<br/><br/>
+<br/>
 <p align="center">
 <img src="https://github.com/sajadmh/google-sheets-wordle/blob/main/assets/demo.gif" width="800"></img>
 </p>
-<br/><br/>
+<br/>
 
 **Instructions:**
 
