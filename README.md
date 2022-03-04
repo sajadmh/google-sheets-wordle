@@ -1,29 +1,24 @@
 # [Make a copy of the Google Sheet here!](https://docs.google.com/spreadsheets/d/1QUwNrr4rBDTNcsto9bkQzo58uXjQFm0pp8nv17WFaa8/copy)
 
-<br/>
-<p align="center">
-<img src="https://github.com/sajadmh/google-sheets-wordle/blob/main/assets/demo.gif" width="800"></img>
-</p>
-<br/>
+<kbd><img src="https://github.com/sajadmh/google-sheets-wordle/blob/main/assets/demo.gif" width="800"></img></kbd>
 
-**Instructions:**
+
+# Instructions
 
 1. [Make a copy of the spreadsheet linked here](https://docs.google.com/spreadsheets/d/1QUwNrr4rBDTNcsto9bkQzo58uXjQFm0pp8nv17WFaa8/copy)
-2. From the menu, click into Wordle > Install Game > Run Me Twice		
-3. [When prompted, give the script authorization to run](https://support.google.com/cloud/answer/7454865)	
+2. From the menu, click into **Wordle > Install Game > Run Me Twice**
+3. [When prompted, give the script authorization to run](https://support.google.com/cloud/answer/7454865)
 4. After authorizing, follow step 2 again to successfully install the onEdit trigger
 5. You should be ready to play the game!
 
-**Tips:**
+# Tips
 
 * To start a new game with a new word, go to the menu, click into Wordle > Start New Game
 * This will increment ID by one to move to the next word and will reset the guesses, squares and keyboard backgrounds
 * To create a custom list of words, go to Settings and replace the blacked out cells in column C with different words
 * To view the script, go to Extensions > Apps Script
 
-----
-
-**Guide:**
+# Guide
 
 This game utilizes conditional formatting and formulas to split a guess into each square, and to unhide a checkbox if a guess is five letters long.
 
