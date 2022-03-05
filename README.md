@@ -24,7 +24,7 @@ This game utilizes conditional formatting and formulas to split a guess into eac
 
 With a menu feature, a Settings sheet containing a list of words and a corresponding ID, along with an array of objects to compare the guess with the actual Wordle, we can create our own version all within Google Sheets.
 
-First, create a menu item through the UI utilizin `SpreadsheetApp.getUi()`:
+First, create a menu item through the UI utilizing `SpreadsheetApp.getUi()`:
 
 ```
 function onOpen() {
@@ -53,14 +53,14 @@ function getId() {
 }
 ```
 
-Then we will cerate a `function newGame() { ... }` that will start a new game, removing the guesses and background colors by accessing each square and setting to white:
+Then we will create a `function newGame() { ... }` that will start a new game, removing the guesses and background colors by accessing each square and setting to white:
 
 ```
 var allRows = play.getRangeList(["K3", "T3", "AC3", "AL3", "AU3", "K5", "T5", "AC5", "AL5", "AU5", "K7", "T7", "AC7", "AL7", "AU7", "K9", "T9", "AC9", "AL9", "AU9", "K11", "T11", "AC11", "AL11", "AU11", "K13", "T13", "AC13", "AL13", "AU13"]);
 allRows.setBackground("#FFFFFF");
 ```
 
-We will also access the "keyboard" and reset each bacakground:
+We will also access the "keyboard" and reset each background:
 
 ```
 var allKeys = play.getRangeList(["G17","AK19","Y19","S17","P15","Y17","AE17","AK17","AT15","AQ17","AW17","BC17","AW19","AQ19","AZ15","BF15","D15","V15","M17","AB15","AN15","AE19","J15","S19","AH15","M19"]);
@@ -205,7 +205,7 @@ Finally, we will loop through the current row's squares and set a background col
 
 Due to the spreadsheet's design, the squares go from column K to column AU. There are 9 columns we need to jump from square to square, going from left to right.
 
-First, we will create initialize `var y = 0` so that we offset +9 horizontally across the sheet and halt the loop once we reach 36 columns (5 squares) across.
+First, we will initialize `var y = 0` so that we offset +9 horizontally across the sheet and halt the loop once we reach 36 columns (5 squares) across.
 
 Within the `while` loop, we will also use forEach to go through the `row` array of objects. For each object we access, we will check its letter and find the cell for that letter in the keyboard mockup in a `var keyboard` array that we have created that points each letter to the appropriate cell in the keyboard.
 
