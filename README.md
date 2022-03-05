@@ -1,22 +1,23 @@
 # [Make a copy of the Google Sheet here!](https://docs.google.com/spreadsheets/d/1QUwNrr4rBDTNcsto9bkQzo58uXjQFm0pp8nv17WFaa8/copy)
 
-<kbd><img src="https://github.com/sajadmh/google-sheets-wordle/blob/main/assets/demo.gif" width="800"></img></kbd>
+<kbd><img src="https://github.com/sajadmh/google-sheets-wordle/blob/main/assets/demo.gif" width="700"></img></kbd>
 
 
 # Instructions
 
 1. [Make a copy of the spreadsheet linked here](https://docs.google.com/spreadsheets/d/1QUwNrr4rBDTNcsto9bkQzo58uXjQFm0pp8nv17WFaa8/copy)
-2. From the menu, click into **Wordle > Install Game > Run Me Twice**
-3. [When prompted, give the script authorization to run](https://support.google.com/cloud/answer/7454865)
-4. After authorizing, follow step 2 again to successfully install the onEdit trigger
-5. You should be ready to play the game!
+2. Type in a word in the left field. Entering 5 letters exactly will reveal the checkbox to submit your guess
+3. Repeat until you get the Wordle
+4. Done? Start a new game by going to the menu and clicking into **Wordle > Start New Game**
 
-# Tips
+# Notes
 
-* To start a new game with a new word, go to the menu, click into **Wordle > Start New Game**
-* This will increment the ID at the top of the Settings by one to move to the next word and will reset the guesses, squares and keyboard colors
+* Do not type directly into the squares as they contain formulas
+* The script uses onEdit to track any changes to the spreadsheet, and executes the code if the checkbox is clicked
+* If a word longer than 5 letters is entered and the checkbox is circumvented, the script will only consider the first 5 letters in the guess
+* Starting a new game from the menu will increment the ID at the top of the Settings by +1, and it will reset all square and keyboard colors
 * To create a custom list of words, go to Settings and replace the blacked out cells in column C with different words
-* To view the script, go to Extensions > Apps Script
+* To view the script, go to Extensions > Apps Script or the `code.gs` in this directory
 
 # Guide
 
@@ -31,15 +32,12 @@ function onOpen() {
   var ui = SpreadsheetApp.getUi();
   ui.createMenu('► Wordle ◄')
     .addItem('🔄  Start New Game', 'newGame')
-    .addSeparator()
-    .addSubMenu(SpreadsheetApp.getUi().createMenu('Install Game')
-      .addItem('🔛  Run Me Twice', 'createOnEditTrigger'))
     .addToUi();
 }
 ```
 
 In the menu, one feature will reset the game and move on to the next Wordle.
-The other feature will be used for installing the onEdit trigger that looks out for a user's click of a checkbox.
+
 
 We will create a function to get the current ID in the Settings sheet in cell C2. This is the ID that references the current game/word:
 
