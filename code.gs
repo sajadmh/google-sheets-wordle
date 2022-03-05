@@ -17,10 +17,10 @@ function newGame() {
   var play = ss.getSheetByName("PLAY");
   var settings = ss.getSheetByName("SETTINGS");
 
-  var inputRange = ss.getRange('C3:C13');
+  var inputRange = play.getRange('C3:C13');
   inputRange.clearContent();
   
-  var checkBoxRange = ss.getRange('BE3:BE13');
+  var checkBoxRange = play.getRange('BE3:BE13');
   var checkBoxValues = checkBoxRange.getValues();
   for (var i = 0; i < checkBoxValues.length; i++) {
     for (var j = 0; j < checkBoxValues[i].length; j++) {
