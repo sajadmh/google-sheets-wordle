@@ -5,19 +5,20 @@
 
 # Instructions
 
-1. [Make a copy of the spreadsheet linked here](https://docs.google.com/spreadsheets/d/1QUwNrr4rBDTNcsto9bkQzo58uXjQFm0pp8nv17WFaa8/copy)
-2. Type in a word in the left field. Entering 5 letters exactly will reveal the checkbox to submit your guess
-3. Repeat until you get the Wordle
-4. Done? Start a new game by going to the menu and clicking into **Wordle > Start New Game**
+1. [Make a copy of the spreadsheet linked here](https://docs.google.com/spreadsheets/d/1QUwNrr4rBDTNcsto9bkQzo58uXjQFm0pp8nv17WFaa8/copy).
+2. Type in a word in the left field. Entering 5 letters exactly will reveal the checkbox to submit your guess.
+3. Repeat until you get the Wordle.
+4. Done? Start a new game by going to the menu and clicking into **Wordle > Start New Game**.
+5. For first time use, provide the script authorization when prompted and follow step 4 again.
 
 # Notes
 
-* Do not type directly into the squares as they contain formulas
-* The script uses onEdit to track any changes to the spreadsheet, and executes the code if the checkbox is clicked
-* If a word longer than 5 letters is entered and the checkbox is circumvented, the script will only consider the first 5 letters in the guess
-* Starting a new game from the menu will increment the ID at the top of the Settings by +1, and it will reset all square and keyboard colors
-* To create a custom list of words, go to Settings and replace the blacked out cells in column C with different words
-* To view the script, go to Extensions > Apps Script or the `code.gs` in this directory
+* Do not type directly into the squares as they contain formulas.
+* The script uses onEdit to track any changes to the spreadsheet, and executes the code if the checkbox is clicked.
+* If a word longer than 5 letters is entered and the checkbox is circumvented, the script will only consider the first 5 letters in the guess.
+* Starting a new game from the menu will increment the ID at the top of the Settings by +1, and it will reset all square and keyboard colors.
+* To create a custom list of words, go to Settings and replace the blacked out cells in column C with different words.
+* To view the script, go to Extensions > Apps Script or the `code.gs` in this directory.
 
 # Guide
 
