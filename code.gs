@@ -73,147 +73,155 @@ function onEdit(e) {
   if (e.range.getColumn() == checkboxColumnInt) {
     if (runBox.isChecked() == true) {
 
-    var keyboard = [{letter: "a", cell: "G17"}, 
-                    {letter: "b", cell: "AK19"}, 
-                    {letter: "c", cell: "Y19"}, 
-                    {letter: "d", cell: "S17"}, 
-                    {letter: "e", cell: "P15"}, 
-                    {letter: "f", cell: "Y17"}, 
-                    {letter: "g", cell: "AE17"}, 
-                    {letter: "h", cell: "AK17"}, 
-                    {letter: "i", cell: "AT15"}, 
-                    {letter: "j", cell: "AQ17"}, 
-                    {letter: "k", cell: "AW17"}, 
-                    {letter: "l", cell: "BC17"}, 
-                    {letter: "m", cell: "AW19"}, 
-                    {letter: "n", cell: "AQ19"}, 
-                    {letter: "o", cell: "AZ15"}, 
-                    {letter: "p", cell: "BF15"}, 
-                    {letter: "q", cell: "D15"}, 
-                    {letter: "r", cell: "V15"}, 
-                    {letter: "s", cell: "M17"}, 
-                    {letter: "t", cell: "AB15"}, 
-                    {letter: "u", cell: "AN15"}, 
-                    {letter: "v", cell: "AE19"}, 
-                    {letter: "w", cell: "J15"}, 
-                    {letter: "x", cell: "S19"}, 
-                    {letter: "y", cell: "AH15"}, 
-                    {letter: "z", cell: "M19"}];
-
-      /**
-       * Gets the current Wordle by searching the range of IDs and offsetting to get the word as an array "currentWordArray".
-       */
-      var idRange = settings.getRange("C2");
-      var currentId = idRange.getDisplayValues();
-      var searchIdRange = settings.getRange("B5:B").getValues();
-      var wordPosition;
-      var count = 4; //ID ranges start from row 5
-
-      for (var i = 0; i < searchIdRange.length; i++) {
-        count += 1;
-        if (searchIdRange[i][0] == currentId) {
-          wordPosition = "B" + count;
-          break;
-        }
-      }
-
-      var currentWord = settings.getRange("" + wordPosition + "").offset(0, 1).getDisplayValue();
-      var currentWordString = currentWord.toLowerCase();
-
       /**
        * Gets the current guess submission for the row submitted by checkbox. Converts the guess to an array.
        */
-      var guessString = play.getRange("C" + index).getDisplayValue().substring(0, 5).toLowerCase();
+      var guessString = play.getRange("C" + index).getDisplayValue().toLowerCase(); //.substring(0, 5) can split result
       var guessArray = guessString.split("");
 
       /**
-       * Creates an array of objects containing each row letter with a "fill" (background color) designation.
-       * match = guess letter and Wordle letter for current index match
-       * valid = guess letter is found in Wordle but not in current index
-       * invalid = guess letter is not found in Wordle
-       * All letters are defaulted to invalid and compared to the current Wordle letter by letter and given a value in the object.
+       * Checks if the guess being submitted (if hidden checkbox is circumvented) is exactly 5 letters.
        */
-      row = [];
-      var wordle = currentWordString;
+      if (guessArray.length == 5) {
 
-      //push each letter into an object and set invalid for all objects
-      guessArray.forEach(i => {
-        row.push({
-          letter: i,
-          fill: "invalid"
-        });
-      });
+        var keyboard = [{letter: "a", cell: "G17"}, 
+                        {letter: "b", cell: "AK19"}, 
+                        {letter: "c", cell: "Y19"}, 
+                        {letter: "d", cell: "S17"}, 
+                        {letter: "e", cell: "P15"}, 
+                        {letter: "f", cell: "Y17"}, 
+                        {letter: "g", cell: "AE17"}, 
+                        {letter: "h", cell: "AK17"}, 
+                        {letter: "i", cell: "AT15"}, 
+                        {letter: "j", cell: "AQ17"}, 
+                        {letter: "k", cell: "AW17"}, 
+                        {letter: "l", cell: "BC17"}, 
+                        {letter: "m", cell: "AW19"}, 
+                        {letter: "n", cell: "AQ19"}, 
+                        {letter: "o", cell: "AZ15"}, 
+                        {letter: "p", cell: "BF15"}, 
+                        {letter: "q", cell: "D15"}, 
+                        {letter: "r", cell: "V15"}, 
+                        {letter: "s", cell: "M17"}, 
+                        {letter: "t", cell: "AB15"}, 
+                        {letter: "u", cell: "AN15"}, 
+                        {letter: "v", cell: "AE19"}, 
+                        {letter: "w", cell: "J15"}, 
+                        {letter: "x", cell: "S19"}, 
+                        {letter: "y", cell: "AH15"}, 
+                        {letter: "z", cell: "M19"}];
 
-      //if guess letter matches Wordle letter for current index, change "fill" from invalid to match
-      //if a match, replace the letter in the Wordle with a zero
-      row.forEach((i, index) => {
-        if (i.letter == wordle[index]) {
-          i.fill = "match";
-          wordle = wordle.replace(i.letter, "0");
-        }
-      });
+          /**
+           * Gets the current Wordle by searching the range of IDs and offsetting to get the word as an array "currentWordArray".
+           */
+          var idRange = settings.getRange("C2");
+          var currentId = idRange.getDisplayValues();
+          var searchIdRange = settings.getRange("B5:B").getValues();
+          var wordPosition;
+          var count = 4; //ID ranges start from row 5
 
-      //if object letter is included in the Wordle, change "fill" from invalid to valid
-      //if valid, replace the letter in the Wordle with a zero
-      row.forEach((i) => {
-        if (i.fill != "match" && wordle.includes(i.letter)) {
-          i.fill = "valid";
-          wordle = wordle.replace(i.letter, "0");
-        }
-      });
-
-      //console.log("row[]: " + JSON.stringify(row));
-
-      /**
-       * While loop to iterate over all five squares for the current row number (index), with y initially set to 0.
-       * Increment y by 9 at a cap of 36, offsetting horizontally from the square in column K to the square in column AU.
-       * Loop through the array of objects (variable "row") and for each element, check the "fill" to determine what color to fill the square.
-       * The while loop ends when y hits 36, i.e. all 5 squares are iterated over from column K to column AU
-       */
-
-      var squareOne = play.getRange("K3");
-      var y = 0;
-      
-      while (y <= 36) {
-        row.forEach((i) => {
-
-          letter = i.letter;
-          let key = keyboard.find(key => key.letter == letter).cell;
-
-          if (i.fill == "match") {
-            squareOne.offset(offsetIndex, y).setBackground("#6aaa64");
-            squareOne.offset(offsetIndex, y).setFontColor("#FFFFFF");
-            play.getRange(key).setBackground("#6aaa64");
-            play.getRange(key).setFontColor("#ffffff");
-          }
-
-          else if (i.fill == "valid") {
-            if (play.getRange(key).getBackground() == "#6aaa64") {
-              squareOne.offset(offsetIndex, y).setBackground("#c9b458");
-              squareOne.offset(offsetIndex, y).setFontColor("#ffffff");
-            } else {
-              squareOne.offset(offsetIndex, y).setBackground("#c9b458");
-              squareOne.offset(offsetIndex, y).setFontColor("#ffffff");
-              play.getRange(key).setBackground("#c9b458");
-              play.getRange(key).setFontColor("#ffffff");
+          for (var i = 0; i < searchIdRange.length; i++) {
+            count += 1;
+            if (searchIdRange[i][0] == currentId) {
+              wordPosition = "B" + count;
+              break;
             }
           }
 
-          else if (i.fill == "invalid") {
-            if (play.getRange(key).getBackground() == "#6aaa64" || play.getRange(key).getBackground() == "#c9b458") {
-              squareOne.offset(offsetIndex, y).setBackground("#787c7e");
-              squareOne.offset(offsetIndex, y).setFontColor("#ffffff");
-            } else {
-              squareOne.offset(offsetIndex, y).setBackground("#787c7e");
-              squareOne.offset(offsetIndex, y).setFontColor("#ffffff");
-              play.getRange(key).setBackground("#787c7e");
-              play.getRange(key).setFontColor("#ffffff");
+          var currentWord = settings.getRange("" + wordPosition + "").offset(0, 1).getDisplayValue();
+          var currentWordString = currentWord.toLowerCase();
+
+          /**
+           * Creates an array of objects containing each row letter with a "fill" (background color) designation.
+           * match = guess letter and Wordle letter for current index match
+           * valid = guess letter is found in Wordle but not in current index
+           * invalid = guess letter is not found in Wordle
+           * All letters are defaulted to invalid and compared to the current Wordle letter by letter and given a value in the object.
+           */
+          row = [];
+          var wordle = currentWordString;
+
+          //push each letter into an object and set invalid for all objects
+          guessArray.forEach(i => {
+            row.push({
+              letter: i,
+              fill: "invalid"
+            });
+          });
+
+          //if guess letter matches Wordle letter for current index, change "fill" from invalid to match
+          //if a match, replace the letter in the Wordle with a zero
+          row.forEach((i, index) => {
+            if (i.letter == wordle[index]) {
+              i.fill = "match";
+              wordle = wordle.replace(i.letter, "0");
             }
-          }
+          });
+
+          //if object letter is included in the Wordle, change "fill" from invalid to valid
+          //if valid, replace the letter in the Wordle with a zero
+          row.forEach((i) => {
+            if (i.fill != "match" && wordle.includes(i.letter)) {
+              i.fill = "valid";
+              wordle = wordle.replace(i.letter, "0");
+            }
+          });
+
+          //console.log("row[]: " + JSON.stringify(row));
+
+          /**
+           * While loop to iterate over all five squares for the current row number (index), with y initially set to 0.
+           * Increment y by 9 at a cap of 36, offsetting horizontally from the square in column K to the square in column AU.
+           * Loop through the array of objects (variable "row") and for each element, check the "fill" to determine what color to fill the square.
+           * The while loop ends when y hits 36, i.e. all 5 squares are iterated over from column K to column AU
+           */
+
+          var squareOne = play.getRange("K3");
+          var y = 0;
           
-          y += 9;
+          while (y <= 36) {
+            row.forEach((i) => {
 
-        });   
+              letter = i.letter;
+              let key = keyboard.find(key => key.letter == letter).cell;
+
+              if (i.fill == "match") {
+                squareOne.offset(offsetIndex, y).setBackground("#6aaa64");
+                squareOne.offset(offsetIndex, y).setFontColor("#FFFFFF");
+                play.getRange(key).setBackground("#6aaa64");
+                play.getRange(key).setFontColor("#ffffff");
+              }
+
+              else if (i.fill == "valid") {
+                if (play.getRange(key).getBackground() == "#6aaa64") {
+                  squareOne.offset(offsetIndex, y).setBackground("#c9b458");
+                  squareOne.offset(offsetIndex, y).setFontColor("#ffffff");
+                } else {
+                  squareOne.offset(offsetIndex, y).setBackground("#c9b458");
+                  squareOne.offset(offsetIndex, y).setFontColor("#ffffff");
+                  play.getRange(key).setBackground("#c9b458");
+                  play.getRange(key).setFontColor("#ffffff");
+                }
+              }
+
+              else if (i.fill == "invalid") {
+                if (play.getRange(key).getBackground() == "#6aaa64" || play.getRange(key).getBackground() == "#c9b458") {
+                  squareOne.offset(offsetIndex, y).setBackground("#787c7e");
+                  squareOne.offset(offsetIndex, y).setFontColor("#ffffff");
+                } else {
+                  squareOne.offset(offsetIndex, y).setBackground("#787c7e");
+                  squareOne.offset(offsetIndex, y).setFontColor("#ffffff");
+                  play.getRange(key).setBackground("#787c7e");
+                  play.getRange(key).setFontColor("#ffffff");
+                }
+              }
+              
+              y += 9;
+
+            });   
+          }
+      } else {
+          ss.toast("Guess must be exactly 5 letters. Try again!");
       }
     }
   }
