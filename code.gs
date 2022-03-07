@@ -47,8 +47,7 @@ function newGame() {
 
 /**
  * Play Wordle.
- * If guessArray == wordArray, toast "Nice!"
- * Add menu item to iterate to next game and reset board.
+ * On edit of checkbox, compare the guess submission to the current Wordle based on ID in Settings.
  */
 function onEdit(e) {
 
@@ -59,12 +58,13 @@ function onEdit(e) {
   var ss = SpreadsheetApp.getActiveSpreadsheet();
   var play = ss.getSheetByName("PLAY");
   var settings = ss.getSheetByName("SETTINGS");
+  
+  var runBox = play.getRange(index, checkboxColumnInt);
 
   /**
    * Checks if the checkbox is in column 57.
    * If checkbox if checked/made true on edit, it runs the following code.
    */
-  var runBox = play.getRange(index, checkboxColumnInt);
 
   if (e.range.getColumn() == checkboxColumnInt) {
     if (runBox.isChecked() == true) {
@@ -97,7 +97,7 @@ function onEdit(e) {
                     {letter: "z", cell: "M19"}];
 
       /**
-       * Gets the current game's word by searching the range of IDs and offsetting to get the word as an array "currentWordArray".
+       * Gets the current Wordle by searching the range of IDs and offsetting to get the word as an array "currentWordArray".
        */
       var idRange = settings.getRange("C2");
       var currentId = idRange.getDisplayValues();
@@ -117,24 +117,22 @@ function onEdit(e) {
       var currentWordString = currentWord.toLowerCase();
 
       /**
-       * Gets the row of letters as "guessArray" by getting the guess entered in column C. Converts to an array.
+       * Gets the current guess submission for the row submitted by checkbox. Converts the guess to an array.
        */
       var guessString = play.getRange("C" + index).getDisplayValue().substring(0, 5).toLowerCase();
       var guessArray = guessString.split("");
 
       /**
-       * Creates an array of objects containing each row letter with a designation.
-       * Designations include:
-       * match = guess letter is found and in correct position compared to Wordle
-       * valid = guess letter is found but in wrong position
-       * invalid = letter not found in Wordle
-       * 
+       * Creates an array of objects containing each row letter with a "fill" (background color) designation.
+       * match = guess letter and Wordle letter for current index match
+       * valid = guess letter is found in Wordle but not in current index
+       * invalid = guess letter is not found in Wordle
        * All letters are defaulted to invalid and compared to the current Wordle letter by letter and given a value in the object.
        */
       row = [];
       var wordle = currentWordString;
 
-      //set invalid for all objects
+      //push each letter into an object and set invalid for all objects
       guessArray.forEach(i => {
         row.push({
           letter: i,
@@ -142,8 +140,8 @@ function onEdit(e) {
         });
       });
 
-      //if object letter matches current Wordle index, replace invalid with match
-      //if a match, replace the letter with a zero to no longer consider it
+      //if guess letter matches Wordle letter for current index, change "fill" from invalid to match
+      //if a match, replace the letter in the Wordle with a zero
       row.forEach((i, index) => {
         if (i.letter == wordle[index]) {
           i.fill = "match";
@@ -151,7 +149,8 @@ function onEdit(e) {
         }
       });
 
-      //if object letter is included in the Wordle (after checking for matches and replacing matches with 0), replace invalid with valid
+      //if object letter is included in the Wordle, change "fill" from invalid to valid
+      //if valid, replace the letter in the Wordle with a zero
       row.forEach((i) => {
         if (i.fill != "match" && wordle.includes(i.letter)) {
           i.fill = "valid";
@@ -162,10 +161,10 @@ function onEdit(e) {
       //console.log("row[]: " + JSON.stringify(row));
 
       /**
-       * Create a while loop to iterate over all five squares for the current row number (index), with y initially set to 0.
-       * Increment y by 9 at a cap of 36, offsetting horizontlaly from the square in column K to the square in column AU.
-       * Loop through the array of objects ("row") and for each element, check the "fill".
-       * The while loop ends when y hits 36, i.e. all 5 squares are iterated over.
+       * While loop to iterate over all five squares for the current row number (index), with y initially set to 0.
+       * Increment y by 9 at a cap of 36, offsetting horizontally from the square in column K to the square in column AU.
+       * Loop through the array of objects (variable "row") and for each element, check the "fill" to determine what color to fill the square.
+       * The while loop ends when y hits 36, i.e. all 5 squares are iterated over from column K to column AU
        */
 
       var squareOne = play.getRange("K3");
