@@ -1,3 +1,7 @@
+/***************************************************
+ * https://github.com/sajadmh/google-sheets-wordle
+ ***************************************************/
+
 function onInstall(e) {
   onOpen(e);
 }
