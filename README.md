@@ -6,27 +6,43 @@
 # Instructions
 
 1. [Make a copy of the spreadsheet linked here](https://docs.google.com/spreadsheets/d/1QUwNrr4rBDTNcsto9bkQzo58uXjQFm0pp8nv17WFaa8/copy).
-2. Type in a word in the left field. Entering 5 letters exactly will reveal the checkbox to submit your guess.
-3. Repeat until you get the Wordle.
-4. Done? Start a new game by going to the menu and clicking into **Wordle > Start New Game**.
-5. For first time use, provide the script authorization when prompted and follow step 4 again.
+2. Type in a word in the left field. Entering a valid, 5 letter word based on the list of words in the Settings sheet will reveal the checkbox to submit your guess.
+3. Repeat row by row until you get the Wordle.
+4. To start a new game, go to the menu and click into **Wordle > Start New Game**.
+
+(For first-time users, starting a new game will require script authorization. When prompted, provide authorization and follow step 4 again.)
 
 # Notes
 
 * Do not type directly into the squares as they contain formulas.
 * The script uses onEdit to track any changes to the spreadsheet, and executes the code if the checkbox is clicked.
-* If a word longer than 5 letters is entered and the checkbox is circumvented, the script will only consider the first 5 letters in the guess.
-* Starting a new game from the menu will increment the ID at the top of the Settings by +1, and it will reset all square and keyboard colors.
-* To create a custom list of words, go to Settings and replace the blacked out cells in column C with different words.
+* If a word shorter or longer than 5 letters is entered and the checkbox is circumvented, the script will reject it.
+* Starting a new game from the menu will increment the ID at the top of the Settings by +1, and it will reset all square and keyboard background colors.
+* To create a custom list of Wordles, go to Settings and replace the blacked out cells in column C with different words.
 * To view the script, go to Extensions > Apps Script or the `code.gs` in this directory.
 
 # Guide
 
-This game utilizes conditional formatting and formulas to split a guess into each square, and to unhide a checkbox if a guess is five letters long.
+This game utilizes a hybrid of formulas/conditional formatting and Google Apps Script.
 
-With a menu feature, a Settings sheet containing a list of words and a corresponding ID, along with an array of objects to compare the guess with the actual Wordle, we can create our own version all within Google Sheets.
+The **Settings** sheet will hold an ID at the top, representing the current game (i.e. word):
 
-First, create a menu item through the UI utilizing `SpreadsheetApp.getUi()`:
+* Each ID corresponds to a word in a list of Wordles.
+* A second, longer list of "valid" words is also provided.
+
+The **Play** sheet contains 5 squares, 6 rows, and a mock keyboard:
+
+* On the left side, a box is provided to type into.
+* On the right side, a checkbox and formula are provided:
+* The formula `=IFERROR(IF(MATCH($C3, {SETTINGS!$C$5:$C;SETTINGS!$G$5:$G}, 0), "←  SUBMIT YOUR ANSWER"), "NOT A VALID WORD")` stipulates that if the guess is valid based on the two word lists in the Settings, it will return "SUBMIT YOUR ANSWER", otherwise if the guess is invalid, it will return "NOT A VALID WORD".
+* Conditional formatting determines when the checkbox is unhidden, based on if the submission is 5 letters long: `=LEN($C3)<>5`
+* The checkbox remains hidden if the formula returns "NOT A VALID WORD".
+
+The **Menu** provides an option to start a new game, which resets the sheet from all text and colors, and increments the ID at the top of the Settings by +1.
+
+The **Apps Script** does everything else:
+
+First we create the menu item through the UI `SpreadsheetApp.getUi()`:
 
 ```
 function onOpen() {
@@ -37,41 +53,27 @@ function onOpen() {
 }
 ```
 
-In the menu, one feature will reset the game and move on to the next Wordle.
-
-
-We will create a function to get the current ID in the Settings sheet in cell C2. This is the ID that references the current game/word:
+The function `newGame` referenced above resets the game and moves on to the next Wordle:
 
 ```
-function getId() {
-  var ss = SpreadsheetApp.getActiveSpreadsheet();
-  var settings = ss.getSheetByName("SETTINGS");
-  var idRange = settings.getRange("C2");
-  var idValue = idRange.getDisplayValues();
-  return idValue;
+function newGame() {
+  ...
 }
 ```
 
-Then we will create a `function newGame() { ... }` that will start a new game, removing the guesses and background colors by accessing each square and setting to white:
+First, we clear the guesses submitted in column C:
 
 ```
-var allRows = play.getRangeList(["K3", "T3", "AC3", "AL3", "AU3", "K5", "T5", "AC5", "AL5", "AU5", "K7", "T7", "AC7", "AL7", "AU7", "K9", "T9", "AC9", "AL9", "AU9", "K11", "T11", "AC11", "AL11", "AU11", "K13", "T13", "AC13", "AL13", "AU13"]);
-allRows.setBackground("#FFFFFF");
+var inputRange = play.getRange('C3:C13');
+inputRange.clearContent();
 ```
 
-We will also access the "keyboard" and reset each background:
+The checkboxes need to be unchecked in column BE:
 
 ```
-var allKeys = play.getRangeList(["G17","AK19","Y19","S17","P15","Y17","AE17","AK17","AT15","AQ17","AW17","BC17","AW19","AQ19","AZ15","BF15","D15","V15","M17","AB15","AN15","AE19","J15","S19","AH15","M19"]);
-allKeys.setBackground("#D3D6DA");
-allKeys.setFontColor("#000000");
-```
-
-A `for loop` will uncheck each checkbox (in column BE, rows 3 through 13) that was checked off by the user when submitting their guess:
-
-```
-var checkBoxRange = ss.getRange('BE3:BE13');
+var checkBoxRange = play.getRange('BE3:BE13');
 var checkBoxValues = checkBoxRange.getValues();
+
 for (var i = 0; i < checkBoxValues.length; i++) {
   for (var j = 0; j < checkBoxValues[i].length; j++) {
     if (checkBoxValues[i][j] == true) {
@@ -79,23 +81,31 @@ for (var i = 0; i < checkBoxValues.length; i++) {
     }
   }
 }
+checkBoxRange.setValues(checkBoxValues);
 ```
 
-We will also clear the user's words/guesses in the left column:
+The squares and keyboard keys need to be reset:
 
 ```
-var inputRange = ss.getRange('C3:C13');
-inputRange.clearContent();
+var allRows = play.getRangeList(["K3", "T3", "AC3", "AL3", "AU3", "K5", "T5", "AC5", "AL5", "AU5", "K7", "T7", "AC7", "AL7", "AU7", "K9", "T9", "AC9", "AL9", "AU9", "K11", "T11", "AC11", "AL11", "AU11", "K13", "T13", "AC13", "AL13", "AU13"]);
+allRows.setBackground("#FFFFFF");
+allRows.setFontColor("#000000");
+
+var allKeys = play.getRangeList(["G17","AK19","Y19","S17","P15","Y17","AE17","AK17","AT15","AQ17","AW17","BC17","AW19","AQ19","AZ15","BF15","D15","V15","M17","AB15","AN15","AE19","J15","S19","AH15","M19"]);
+allKeys.setBackground("#D3D6DA");
+allKeys.setFontColor("#000000");
 ```
 
-Then get the current ID in Settings C2, and increment it by one:
+And finally, the ID value in the Settings, column C, row 2 needs to be incremented by one:
 
 ```
-var currentId = getId();
+var idRange = settings.getRange("C2");
+var currentId = idRange.getDisplayValues();
 idRange.setValue(parseInt(currentId) + 1);
 ```
 
-**Finally, we get into the Wordle function!**
+
+**Finally, we get into the Wordle function:**
 
 When a user checks the checkbox to submit their guess, we must get the checkbox's row and create an array to store each of the five letters in their guess, e.g. `CRANE` -> `[C,R,A,N,E]`.
 
