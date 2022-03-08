@@ -35,7 +35,7 @@ The **Play** sheet contains 5 squares, 6 rows, and a mock keyboard:
 * On the left side, a box is provided to type into.
 * On the right side, a checkbox and formula are provided:
 * The formula `=IFERROR(IF(MATCH($C3, {SETTINGS!$C$5:$C;SETTINGS!$G$5:$G}, 0), "←  SUBMIT YOUR ANSWER"), "NOT A VALID WORD")` stipulates that if the guess is valid based on the two word lists in the Settings, it will return "SUBMIT YOUR ANSWER", otherwise if the guess is invalid, it will return "NOT A VALID WORD".
-* Conditional formatting determines when the checkbox is unhidden, based on if the submission is 5 letters long: `=LEN($C3)<>5`
+* Conditional formatting determines when the checkbox is unhidden, based on if the submission is 5 letters long: `=LEN($C3)<>5`.
 * The checkbox remains hidden if the formula returns "NOT A VALID WORD".
 
 The **Menu** provides an option to start a new game, which resets the sheet from all text and colors, and increments the ID at the top of the Settings by +1.
