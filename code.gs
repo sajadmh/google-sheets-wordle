@@ -33,16 +33,16 @@ function newGame() {
       }
     }
   }
+  checkBoxRange.setValues(checkBoxValues);
 
   var allRows = play.getRangeList(["K3", "T3", "AC3", "AL3", "AU3", "K5", "T5", "AC5", "AL5", "AU5", "K7", "T7", "AC7", "AL7", "AU7", "K9", "T9", "AC9", "AL9", "AU9", "K11", "T11", "AC11", "AL11", "AU11", "K13", "T13", "AC13", "AL13", "AU13"]);
   allRows.setBackground("#FFFFFF");
+  allRows.setFontColor("#000000");
 
   var allKeys = play.getRangeList(["G17","AK19","Y19","S17","P15","Y17","AE17","AK17","AT15","AQ17","AW17","BC17","AW19","AQ19","AZ15","BF15","D15","V15","M17","AB15","AN15","AE19","J15","S19","AH15","M19"]);
   allKeys.setBackground("#D3D6DA");
   allKeys.setFontColor("#000000");
 
-  checkBoxRange.setValues(checkBoxValues);
-  allRows.setFontColor("#000000");
 
   var idRange = settings.getRange("C2");
   var currentId = idRange.getDisplayValues();
