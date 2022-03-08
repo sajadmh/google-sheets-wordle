@@ -279,8 +279,7 @@ Then, we will check the `fill` for each object. If it is a "match", we will set 
 
 If the `fill` is "valid" then we will set it to yellow, but we must check if the keyboard is already green, meaning in a previous guess this letter might have been a match, but now it's moved to the wrong spot in the new guess. We want to keep the keyboard green in this case. In this logic, a "match" supersedes a valid.
 
-Last, we will check if the `fill` is "invalid", this time checking if the letter in the keyboard is either green or yellow already. If so, it will only set the square to gray, but keep the keyboard as-is. This is to ensure that a letter in the keyboard is not made gray when it might have been green or yellow because it was used twice or three times, such as in the word "DEEDS". The first "E" might be green, but the second E might be invalid, as the Wordle is "GEARS", and only one "E" is needed.
-
+Last, if the `fill` is "invalid", this time we will check if the letter in the keyboard is either green or yellow already. If so, it will only set the square to gray, but keep the keyboard as-is. This is to ensure that a letter in the keyboard is not made gray when it might have been green or yellow because it was used prior, such as in the word "DEEDS". The first "E" might be green, but the second "E" might be invalid, as the Wordle is "GEARS", and only the first "E" in the guess is correct. The keyboard should turn green, and once traversing over the second "E" it sets the square to gray as it should, but does not color over the keyboard key that should be green.
 
 ```
 var squareOne = play.getRange("K3");
