@@ -120,11 +120,11 @@ function onEdit(e) {
 }
 ```
 
-Because writing the feature to see if the checkbox has been checked off, we want to gather the current row (out of 6 rows) that has been checked off and call it `var index`. We also want to specify that the checkbox being checked off is in column BE/#57, where the checkboxes current sit.
+Because we want the script to check if the checkbox has been clicked, we want to gather which row has been checked off (out of the 6). We will store this detail in `var index`. We also want to specify that the checkbox being checked off is in column BE/#57, where the checkboxes current sit.
 
 ```
-  var index = e.range.getRow();
-  var checkboxColumnInt = 57;
+var index = e.range.getRow();
+var checkboxColumnInt = 57;
 ```
 
 With these two details, we will refer to the checkbox that is checked off onEdit as `var runBox`:
