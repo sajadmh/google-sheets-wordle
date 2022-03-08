@@ -25,6 +25,8 @@
 
 This game utilizes a hybrid of formulas/conditional formatting and Google Apps Script.
 
+We will start by establishing the building blocks:
+
 The **Settings** sheet will hold an ID at the top, representing the current game (i.e. word):
 
 * Each ID corresponds to a word in a list of Wordles.
@@ -40,9 +42,11 @@ The **Play** sheet contains 5 squares, 6 rows, and a mock keyboard:
 
 The **Menu** provides an option to start a new game, which resets the sheet from all text and colors, and increments the ID at the top of the Settings by +1.
 
-The **Apps Script** does everything else:
+The **Apps Script** does everything else.
 
-First we create the menu item through the UI `SpreadsheetApp.getUi()`:
+----
+
+First create the menu item through the UI `SpreadsheetApp.getUi()`:
 
 ```
 function onOpen() {
@@ -53,7 +57,7 @@ function onOpen() {
 }
 ```
 
-The function `newGame` referenced above resets the game and moves on to the next Wordle:
+The function `newGame` referenced above resets the sheet and moves on to the next Wordle by incrementing the ID:
 
 ```
 function newGame() {
@@ -61,14 +65,14 @@ function newGame() {
 }
 ```
 
-First, we clear the guesses submitted in column C:
+First, we clear the guesses written in column C:
 
 ```
 var inputRange = play.getRange('C3:C13');
 inputRange.clearContent();
 ```
 
-The checkboxes need to be unchecked in column BE:
+We unchecked the checkboxes in column BE:
 
 ```
 var checkBoxRange = play.getRange('BE3:BE13');
@@ -84,7 +88,7 @@ for (var i = 0; i < checkBoxValues.length; i++) {
 checkBoxRange.setValues(checkBoxValues);
 ```
 
-The squares and keyboard keys need to be reset:
+We reset the squares and keyboard keys of all their color:
 
 ```
 var allRows = play.getRangeList(["K3", "T3", "AC3", "AL3", "AU3", "K5", "T5", "AC5", "AL5", "AU5", "K7", "T7", "AC7", "AL7", "AU7", "K9", "T9", "AC9", "AL9", "AU9", "K11", "T11", "AC11", "AL11", "AU11", "K13", "T13", "AC13", "AL13", "AU13"]);
@@ -96,7 +100,7 @@ allKeys.setBackground("#D3D6DA");
 allKeys.setFontColor("#000000");
 ```
 
-And finally, the ID value in the Settings, column C, row 2 needs to be incremented by one:
+Then, the ID value in the Settings, column C, row 2 will be incremented by one:
 
 ```
 var idRange = settings.getRange("C2");
@@ -104,76 +108,88 @@ var currentId = idRange.getDisplayValues();
 idRange.setValue(parseInt(currentId) + 1);
 ```
 
+This makes up the newGame function.
 
 **Finally, we get into the Wordle function:**
 
-When a user checks the checkbox to submit their guess, we must get the checkbox's row and create an array to store each of the five letters in their guess, e.g. `CRANE` -> `[C,R,A,N,E]`.
+We start with an onEdit function:
 
-`var index = e.range.getRow();` gets the current row.
+```
+function onEdit(e) {
+  ...
+}
+```
 
-`var checkboxColumnInt = 57;` refers to the column where the checkboxes sit.
+Because writing the feature to see if the checkbox has been checked off, we want to gather the current row (out of 6 rows) that has been checked off and call it `var index`. We also want to specify that the checkbox being checked off is in column BE/#57, where the checkboxes current sit.
 
-`var runBox = play.getRange(index, checkboxColumnInt);` refers to the specific checkbox that was checked off.
+```
+  var index = e.range.getRow();
+  var checkboxColumnInt = 57;
+```
 
-Two if statements will check our operation before doing anything. The first ensures that the checkbox that is checked off is an official checkbox in column BE/#57.
-If true, then it will check if the edit (based on the onEdit trigger) turned the checkbox to true (in other words, we ensure that the user checked the box, not unchecked the box):
+With these two details, we will refer to the checkbox that is checked off onEdit as `var runBox`:
+
+`var runBox = play.getRange(index, checkboxColumnInt);`
+
+The entire function is then based on three `if` statements. The first two:
+
 
 ```
 if (e.range.getColumn() == checkboxColumnInt) {
   if (runBox.isChecked() == true) {
-    ...
   }
 }
 ```
 
-If both if statements above are true (the checkbox is checked true in column 57), first we will get the current Wordle and then compare the user's guess against it:
+Ensures that the checkbox that was checked off onEdit is located in column BE/#57, and that the checkbox in question has been made true (as opposed to made false, i.e. unchecked). 
 
-`var currentId = getId();` gets the ID at the top in the Settings sheet (cell C2).
-
-`var searchIdRange = settings.getRange("B5:B").getValues();` scans the column of IDs in the Settings sheet.
-
-The following finds the current game ID in the list of IDs, starting from row 5.
-
-It will loop through the list of IDs, and once it finds it, will set the `var wordPosition` to the cell where the ID and Wordle answer sits.
-
-For example, if the current game ID is `11`, the for loop will find ID `11` in cell `B15`, setting `wordPosition = B15`.
-
-With the ID cell position, we will find the `currentWord` by getting the range `B15` and offsetting to the right by one to access cell `C15` to `getDisplayValue()`, which is the Wordle as a string.
-
-Then, we will convert the wordle to all lowercase (just in case). `currentWordString` contains the current Wordle answer.
-
+If the above operations are true, we will execute more code, getting the row's guess and converting it to an array in all lowercase, then checking if it is exactly 5 characters with one more nested `if` statement:
 
 ```
+var guessString = play.getRange("C" + index).getDisplayValue().toLowerCase(); //.substring(0, 5) can split result
+var guessArray = guessString.split("");
+
+  if (guessArray.length == 5) {
+    ...
+  } else {
+    ss.toast("Guess must be exactly 5 letters. Try again!");
+  }
+```
+
+If the length of the guess is other than 5 characters, it triggers a toast.
+
+If the guess is 5 characters, we want to get the Wordle, compare it with the `guessArray` and fill the squares and keyboard keys with the correct colors.
+
+To get the Wordle, first we get the ID, i.e. the current game, in the Settings in cell C2, then we will search the range of IDs corresponding to their Wordles (B5:B) with a `for` loop, and offset one cell to the right once we find the ID to get the Wordle as a string in all lowercase.
+
+```
+var idRange = settings.getRange("C2");
+var currentId = idRange.getDisplayValues();
+var searchIdRange = settings.getRange("B5:B").getValues();
 var wordPosition;
 var count = 4; //ID ranges start from row 5
 
 for (var i = 0; i < searchIdRange.length; i++) {
   count += 1;
-    if (searchIdRange[i][0] == currentId) {
-      wordPosition = "B" + count;
-      break;
-    }
+  if (searchIdRange[i][0] == currentId) {
+    wordPosition = "B" + count;
+    break;
+  }
 }
 
 var currentWord = settings.getRange("" + wordPosition + "").offset(0, 1).getDisplayValue();
 var currentWordString = currentWord.toLowerCase();
 ```
 
-To get the row's guess, we get the current index (provided by the current checkbox edit) and add the number `C`. Convert the guess to all lowercase, and then split to create an array out of the string.
+Next, we will create an array of objects to represent each letter in the current guess. Along with each letter from the guess, we will designate the "fill" that determines if the letter from the guess is an exact match by index, valid for being in the Wordle, or completely invalid: green, yellow, gray.
 
-```
-var guessString = play.getRange("C" + index).getDisplayValue().toLowerCase();
-var guessArray = guessString.split("");
-```
+`row = [];` creates an empty array that will hold all the objects (i.e. letters + their fill).
 
-Next, we will create an array of objects. Each object will contain one of the letters from the guess for the current round, along with a "fill" that designates whether the background color should be green/yellow/grey. The designations are match, valid, and invalid.
+`var wordle = currentWordString;` calls on the current Wordle string and duplicates it, as we will iterate over `wordle` and remove matches.
 
-`row = [];` creates an empty array that will hold all the objects (i.e. letters + their status).
-`var wordle = currentWordString;` calls on the current Wordle answer and duplicates it, as we will iterate over `wordle` and remove matches.
+Then, three forEach functions will (1) add objects to the empty array `row` starting by designating all fills as "invaliid", (2) iterate over each object and determine if a letter is a "match" and replace and "invalid" with a "match", and (3) iterate over each object and determine if a letter is "valid" and replace any "invalid" with a "valid". All invalids will otherwise remain invalid.
 
-Three `forEach` functions will add to the `row` array, and then declare whether a letter is valid or a match.
-
-The first function will access the current guess `guessArray` and add each element/letter from the `guessArray` to the `row` array as `letter` and set each object `fill` as `invalid` by default.
+(1) We access the guess that was submitted through its `guessArray`, take each element (letter) from the array (5 letters in total), and push 5 objects in total to the `row` empty array:
 
 ```
 guessArray.forEach(i => {
@@ -184,9 +200,19 @@ guessArray.forEach(i => {
 });
 ```
 
-Then, we will access the newly completed `row` array of objects. With forEach, we will check each letter in each object and compare each letter against the `wordle` string, comparing against the current `forEach` index (not to be confused with the previously declared index). The current index is the current object being scanned. If the guess is `CRANE` and we are in position 2, we are accessing the "A" in `CR[A]NE` which is position 2. If the Wordle is `TRAIN`, then the  `wordle[index]` would match `CR[A]NE` and `TR[A]IN`, as both letters match in the same position.
+This would result in something like this:
 
-If it is an exact letter and position match, we will replace the current object's `fill` from `invalid` to `match` then remove said letter from the `wordle` by replacing it with a `0` so that it can no longer be considered "valid" in the next forEach function.
+```
+user's guess: CRANE
+var guessArray = ['c', 'r', 'a', 'n', 'e']
+row = [ [letter: c, fill: invalid], [letter: r, fill: invalid], [letter: a, fill: invalid], [letter: n, fill: invalid], [letter: e, fill: invalid] ]
+```
+
+Then, we will access this newly created `row` array of objects. We will check each letter and compare it to the Wordle string, `wordle`, utilizing the `forEach` `index` that check if there is an exact letter match in an exact position/index match.
+
+If the guess is `CRANE` and we are in position 2, we are accessing the "A" in `CR[A]NE`. If the Wordle is `TRAIN`, then the `wordle[index]` would result in a match for `CR[A]NE` and `TR[A]IN`, as both letters match in the same position.
+
+This will replace the `fill` from "invalid" to "match" and then remove the letter from the `var wordle` by replacing it with a `0` so that it can no longer be considered "valid" in the next forEach function.
 
 ```
 row.forEach((i, index) => {
@@ -197,9 +223,7 @@ row.forEach((i, index) => {
 });
 ```
 
-In this forEach function, we check validity. All matches will become `0`s, so guess `CRANE` for Wordle `TRAIN` would revise the `wordle` var to `T00IN` since the "RA" were exact matches.
-
-When we check for validity, we first want to ensure that we won't replace a `fill` that has been designated a `match`. We will also check if the `wordle` `T00IN` includes each letter in `CRANE`. In this example, "N" from `CRANE` is valid when searching the `wordle` `T00IN`. It's not an exact match, i.e. in the wrong position, but a correct letter and is designated a `valid` `fill`.
+All matches will become `0`s, so guess `CRANE` for Wordle `TRAIN` would revise the `wordle` var to `T00IN` since the "RA" were exact matches. This will allow the next `forEach` function to see if a letter exists in the guess and Wordle, but are not a position match. We check if the guess letter exists in the `wordle` var with `.includes(i.letter)` - `i.letter` referencing the current iteration and the `letter` of the object in the `row` array of objects.
 
 ```
 row.forEach((i) => {
@@ -210,18 +234,56 @@ row.forEach((i) => {
 });
 ```
 
-Finally, we will loop through the current row's squares and set a background color for each square. If object 0 in the `row` array is a match, the first square will turn green. If it's valid, it will turn yellow. If it's invalid, it will turn gray.
+Finally, we will loop through the row's squares and set a background color for each square. If the first object in the `row` array is a match, the first square will turn green. If it's valid, it will turn yellow. If it's invalid, it will turn gray.
 
 Due to the spreadsheet's design, the squares go from column K to column AU. There are 9 columns we need to jump from square to square, going from left to right.
 
 First, we will initialize `var y = 0` so that we offset +9 horizontally across the sheet and halt the loop once we reach 36 columns (5 squares) across.
 
-Within the `while` loop, we will also use forEach to go through the `row` array of objects. For each object we access, we will check its letter and find the cell for that letter in the keyboard mockup in a `var keyboard` array that we have created that points each letter to the appropriate cell in the keyboard.
+We will use a `while` loop to ensure that keep y at a maximum of 36, as we start from 0 and go to 36, which are five jumps across.
 
-If the `fill` in the object of the `row` array is a `match`, we will set the background color of the current square we are iterating over to green. If the `fill` is `valid` then we will set it to yellow, but we must check if the keyboard is already green, meaning in a previous guess this letter was a match, but now it's moved to the wrong spot in the new guess. We will keep the keyboard green, but set the square yellow, so a match supersedes a valid. Last, we will check if the `fill` is `invalid`, first checking if the letter in the keyboard is either green or yellow. If so, it will only set the square to gray, but keep the keyboard as-is. Per iteration, we add 9 to `var y` to end the operation at 36, or 5 squares total.
+we will also use forEach to go through the `row` array of objects. For each object we access, we will check its `letter` and search for that letter in the `keyboard` var, which is an array that points each letter in the mock keyboard to the appropriate cell:
+
+```
+var keyboard = [{letter: "a", cell: "G17"}, 
+                {letter: "b", cell: "AK19"}, 
+                {letter: "c", cell: "Y19"}, 
+                {letter: "d", cell: "S17"}, 
+                {letter: "e", cell: "P15"}, 
+                {letter: "f", cell: "Y17"}, 
+                {letter: "g", cell: "AE17"}, 
+                {letter: "h", cell: "AK17"}, 
+                {letter: "i", cell: "AT15"}, 
+                {letter: "j", cell: "AQ17"}, 
+                {letter: "k", cell: "AW17"}, 
+                {letter: "l", cell: "BC17"}, 
+                {letter: "m", cell: "AW19"}, 
+                {letter: "n", cell: "AQ19"}, 
+                {letter: "o", cell: "AZ15"}, 
+                {letter: "p", cell: "BF15"}, 
+                {letter: "q", cell: "D15"}, 
+                {letter: "r", cell: "V15"}, 
+                {letter: "s", cell: "M17"}, 
+                {letter: "t", cell: "AB15"}, 
+                {letter: "u", cell: "AN15"}, 
+                {letter: "v", cell: "AE19"}, 
+                {letter: "w", cell: "J15"}, 
+                {letter: "x", cell: "S19"}, 
+                {letter: "y", cell: "AH15"}, 
+                {letter: "z", cell: "M19"}];
+``` 
+
+This will allow us to set a color for each key that we need to in the keyboard, based on the letters provided in the array of objects.
+
+Then, we will check the `fill` for each object. If it is a "match", we will set the background color of the current square we are iterating over to green.
+
+If the `fill` is "valid" then we will set it to yellow, but we must check if the keyboard is already green, meaning in a previous guess this letter might have been a match, but now it's moved to the wrong spot in the new guess. We want to keep the keyboard green in this case. In this logic, a "match" supersedes a valid.
+
+Last, we will check if the `fill` is "invalid", this time checking if the letter in the keyboard is either green or yellow already. If so, it will only set the square to gray, but keep the keyboard as-is. This is to ensure that a letter in the keyboard is not made gray when it might have been green or yellow because it was used twice or three times, such as in the word "DEEDS". The first "E" might be green, but the second E might be invalid, as the Wordle is "GEARS", and only one "E" is needed.
 
 
 ```
+var squareOne = play.getRange("K3");
 var y = 0;
 
 while (y <= 36) {
@@ -235,6 +297,7 @@ while (y <= 36) {
       squareOne.offset(offsetIndex, y).setFontColor("#FFFFFF");
       play.getRange(key).setBackground("#6aaa64");
       play.getRange(key).setFontColor("#ffffff");
+      
     } else if (i.fill == "valid") {
       if (play.getRange(key).getBackground() == "#6aaa64") {
         squareOne.offset(offsetIndex, y).setBackground("#c9b458");
@@ -245,6 +308,7 @@ while (y <= 36) {
         play.getRange(key).setBackground("#c9b458");
         play.getRange(key).setFontColor("#ffffff");
       }
+      
     } else if (i.fill == "invalid") {
       if (play.getRange(key).getBackground() == "#6aaa64" || play.getRange(key).getBackground() == "#c9b458") {
         squareOne.offset(offsetIndex, y).setBackground("#787c7e");
@@ -261,4 +325,6 @@ while (y <= 36) {
 
   });
 }
+
+...
 ```
