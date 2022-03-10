@@ -177,17 +177,16 @@ for (var i = 0; i < searchIdRange.length; i++) {
   }
 }
 
-var currentWord = settings.getRange("" + wordPosition + "").offset(0, 1).getDisplayValue();
-var currentWordString = currentWord.toLowerCase();
+var currentWord = settings.getRange("" + wordPosition + "").offset(0, 1).getDisplayValue().toLowerCase();
 ```
 
 Next, we will create an array of objects to represent each letter in the current guess. Along with each letter from the guess, we will designate the "fill" that determines if the letter from the guess is an exact match by index, valid for being in the Wordle, or completely invalid: green, yellow, gray.
 
 `row = [];` creates an empty array that will hold all the objects (i.e. letters + their fill).
 
-`var wordle = currentWordString;` calls on the current Wordle string and duplicates it, as we will iterate over `wordle` and remove matches.
+`var wordle = currentWord;` calls on the current Wordle string and duplicates it, as we will iterate over `wordle` and remove matches.
 
-Then, three forEach functions will (1) add objects to the empty array `row` starting by designating all fills as "invaliid", (2) iterate over each object and determine if a letter is a "match" and replace and "invalid" with a "match", and (3) iterate over each object and determine if a letter is "valid" and replace any "invalid" with a "valid". All invalids will otherwise remain invalid.
+Then, three forEach functions will (1) add objects to the empty array `row` starting by designating all fills as "invalid", (2) iterate over each object and determine if a letter is a "match" and replace and "invalid" with a "match", and (3) iterate over each object and determine if a letter is "valid" and replace any "invalid" with a "valid". All invalids will otherwise remain invalid.
 
 (1) We access the guess that was submitted through its `guessArray`, take each element (letter) from the array (5 letters in total), and push 5 objects in total to the `row` empty array:
 
