@@ -200,8 +200,11 @@ guessArray.forEach(i => {
 This would result in something like this:
 
 `user's guess: CRANE`
+
 `var guessArray = ['c', 'r', 'a', 'n', 'e']`
+
 `row = [ [letter: c, fill: invalid], [letter: r, fill: invalid], [letter: a, fill: invalid], [letter: n, fill: invalid], [letter: e, fill: invalid] ]`
+
 
 (2) Then, we will access this newly created `row` array of objects. We will check each letter and compare it to the Wordle string, `currentWordle`, utilizing the `forEach` `index` that check if there is an exact letter match in an exact position/index match.
 
