@@ -92,11 +92,11 @@ We reset the squares and keyboard keys of all their color:
 
 ```
 var allRows = play.getRangeList(["K3", "T3", "AC3", "AL3", "AU3", "K5", "T5", "AC5", "AL5", "AU5", "K7", "T7", "AC7", "AL7", "AU7", "K9", "T9", "AC9", "AL9", "AU9", "K11", "T11", "AC11", "AL11", "AU11", "K13", "T13", "AC13", "AL13", "AU13"]);
-allRows.setBackground("#FFFFFF");
+allRows.setBackground("#ffffff");
 allRows.setFontColor("#000000");
 
 var allKeys = play.getRangeList(["G17","AK19","Y19","S17","P15","Y17","AE17","AK17","AT15","AQ17","AW17","BC17","AW19","AQ19","AZ15","BF15","D15","V15","M17","AB15","AN15","AE19","J15","S19","AH15","M19"]);
-allKeys.setBackground("#D3D6DA");
+allKeys.setBackground("#d3d6da");
 allKeys.setFontColor("#000000");
 ```
 
@@ -177,14 +177,12 @@ for (var i = 0; i < searchIdRange.length; i++) {
   }
 }
 
-var currentWord = settings.getRange("" + wordPosition + "").offset(0, 1).getDisplayValue().toLowerCase();
+var currentWordle = settings.getRange("" + wordPosition + "").offset(0, 1).getDisplayValue().toLowerCase();
 ```
 
 Next, we will create an array of objects to represent each letter in the current guess. Along with each letter from the guess, we will designate the "fill" that determines if the letter from the guess is an exact match by index, valid for being in the Wordle, or completely invalid: green, yellow, gray.
 
 `row = [];` creates an empty array that will hold all the objects (i.e. letters + their fill).
-
-`var wordle = currentWord;` calls on the current Wordle string and duplicates it, as we will iterate over `wordle` and remove matches.
 
 Then, three forEach functions will (1) add objects to the empty array `row` starting by designating all fills as "invalid", (2) iterate over each object and determine if a letter is a "match" and replace and "invalid" with a "match", and (3) iterate over each object and determine if a letter is "valid" and replace any "invalid" with a "valid". All invalids will otherwise remain invalid.
 
@@ -201,11 +199,9 @@ guessArray.forEach(i => {
 
 This would result in something like this:
 
-```
-user's guess: CRANE
-var guessArray = ['c', 'r', 'a', 'n', 'e']
-row = [ [letter: c, fill: invalid], [letter: r, fill: invalid], [letter: a, fill: invalid], [letter: n, fill: invalid], [letter: e, fill: invalid] ]
-```
+`user's guess: CRANE`
+`var guessArray = ['c', 'r', 'a', 'n', 'e']`
+`row = [ [letter: c, fill: invalid], [letter: r, fill: invalid], [letter: a, fill: invalid], [letter: n, fill: invalid], [letter: e, fill: invalid] ]`
 
 Then, we will access this newly created `row` array of objects. We will check each letter and compare it to the Wordle string, `wordle`, utilizing the `forEach` `index` that check if there is an exact letter match in an exact position/index match.
 
@@ -215,9 +211,9 @@ This will replace the `fill` from "invalid" to "match" and then remove the lette
 
 ```
 row.forEach((i, index) => {
-  if (i.letter == wordle[index]) {
+  if (i.letter == currentWordle[index]) {
     i.fill = "match";
-    wordle = wordle.replace(i.letter, "0");
+    currentWordle = currentWordle.replace(i.letter, "0");
   }
 });
 ```
@@ -226,9 +222,9 @@ All matches will become `0`s, so guess `CRANE` for Wordle `TRAIN` would revise t
 
 ```
 row.forEach((i) => {
-  if (i.fill != "match" && wordle.includes(i.letter)) {
+  if (i.fill != "match" && currentWordle.includes(i.letter)) {
     i.fill = "valid";
-    wordle = wordle.replace(i.letter, "0");
+    currentWordle = currentWordle.replace(i.letter, "0");
   }
 });
 ```
