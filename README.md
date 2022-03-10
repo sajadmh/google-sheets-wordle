@@ -184,7 +184,7 @@ Next, we will create an array of objects to represent each letter in the current
 
 `row = [];` creates an empty array that will hold all the objects (i.e. letters + their fill).
 
-Then, three forEach functions will (1) add objects to the empty array `row` starting by designating all fills as "invalid", (2) iterate over each object and determine if a letter is a "match" and replace and "invalid" with a "match", and (3) iterate over each object and determine if a letter is "valid" and replace any "invalid" with a "valid". All invalids will otherwise remain invalid.
+Then, three forEach functions will (1) add objects to the empty array `row` starting by designating all fills as "invalid", (2) iterate over each object and determine if a letter is a "match" -- if so, replace "invalid" with "match", and (3) iterate over each object and determine if a letter is "valid" -- if so, replace "invalid" with a "valid". All invalids will otherwise remain invalid.
 
 (1) We access the guess that was submitted through its `guessArray`, take each element (letter) from the array (5 letters in total), and push 5 objects in total to the `row` empty array:
 
@@ -203,11 +203,11 @@ This would result in something like this:
 `var guessArray = ['c', 'r', 'a', 'n', 'e']`
 `row = [ [letter: c, fill: invalid], [letter: r, fill: invalid], [letter: a, fill: invalid], [letter: n, fill: invalid], [letter: e, fill: invalid] ]`
 
-Then, we will access this newly created `row` array of objects. We will check each letter and compare it to the Wordle string, `wordle`, utilizing the `forEach` `index` that check if there is an exact letter match in an exact position/index match.
+(2) Then, we will access this newly created `row` array of objects. We will check each letter and compare it to the Wordle string, `currentWordle`, utilizing the `forEach` `index` that check if there is an exact letter match in an exact position/index match.
 
-If the guess is `CRANE` and we are in position 2, we are accessing the "A" in `CR[A]NE`. If the Wordle is `TRAIN`, then the `wordle[index]` would result in a match for `CR[A]NE` and `TR[A]IN`, as both letters match in the same position.
+If the guess is `CRANE` and we are in position 2, we are accessing the "A" in `CR[A]NE`. If the Wordle is `TRAIN`, then the `currentWordle[index]` would result in a match for `CR[A]NE` and `TR[A]IN`, as both letters match in the same position.
 
-This will replace the `fill` from "invalid" to "match" and then remove the letter from the `var wordle` by replacing it with a `0` so that it can no longer be considered "valid" in the next forEach function.
+This will replace the `fill` from "invalid" to "match" and then remove the letter from the `var currentWordle` by replacing it with a `0` so that it can no longer be considered "valid" in the next forEach function.
 
 ```
 row.forEach((i, index) => {
@@ -218,7 +218,9 @@ row.forEach((i, index) => {
 });
 ```
 
-All matches will become `0`s, so guess `CRANE` for Wordle `TRAIN` would revise the `wordle` var to `T00IN` since the "RA" were exact matches. This will allow the next `forEach` function to see if a letter exists in the guess and Wordle, but are not a position match. We check if the guess letter exists in the `wordle` var with `.includes(i.letter)` - `i.letter` referencing the current iteration and the `letter` of the object in the `row` array of objects.
+All matches will become `0`s, so guess `CRANE` for Wordle `TRAIN` would revise the `currentWordle` var to `T00IN` since the "RA" were exact matches.
+
+(3) This will allow the next `forEach` function to see if a letter simply exists (is included) in the Wordle, but are not a position match. We check if the guess letter exists in the `currentWordle` var with `.includes(i.letter)` - `i.letter` referencing the current `letter` of the current object in the `row` array that we are iterating over.
 
 ```
 row.forEach((i) => {
@@ -229,7 +231,7 @@ row.forEach((i) => {
 });
 ```
 
-Finally, we will loop through the row's squares and set a background color for each square. If the first object in the `row` array is a match, the first square will turn green. If it's valid, it will turn yellow. If it's invalid, it will turn gray.
+Finally, we will loop through the spreadsheet row's squares and set a background color for each square. If the first object in the `row` array is a match, the first square will turn green. If it's valid, it will turn yellow. If it's invalid, it will turn gray.
 
 Due to the spreadsheet's design, the squares go from column K to column AU. There are 9 columns we need to jump from square to square, going from left to right.
 
@@ -288,7 +290,7 @@ while (y <= 36) {
 
     if (i.fill == "match") {
       squareOne.offset(offsetIndex, y).setBackground("#6aaa64");
-      squareOne.offset(offsetIndex, y).setFontColor("#FFFFFF");
+      squareOne.offset(offsetIndex, y).setFontColor("#ffffff");
       play.getRange(key).setBackground("#6aaa64");
       play.getRange(key).setFontColor("#ffffff");
       
