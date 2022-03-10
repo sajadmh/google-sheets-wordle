@@ -36,11 +36,11 @@ function newGame() {
   checkBoxRange.setValues(checkBoxValues);
 
   var allRows = play.getRangeList(["K3", "T3", "AC3", "AL3", "AU3", "K5", "T5", "AC5", "AL5", "AU5", "K7", "T7", "AC7", "AL7", "AU7", "K9", "T9", "AC9", "AL9", "AU9", "K11", "T11", "AC11", "AL11", "AU11", "K13", "T13", "AC13", "AL13", "AU13"]);
-  allRows.setBackground("#FFFFFF");
+  allRows.setBackground("#ffffff");
   allRows.setFontColor("#000000");
 
   var allKeys = play.getRangeList(["G17","AK19","Y19","S17","P15","Y17","AE17","AK17","AT15","AQ17","AW17","BC17","AW19","AQ19","AZ15","BF15","D15","V15","M17","AB15","AN15","AE19","J15","S19","AH15","M19"]);
-  allKeys.setBackground("#D3D6DA");
+  allKeys.setBackground("#d3d6da");
   allKeys.setFontColor("#000000");
 
 
@@ -112,7 +112,7 @@ function onEdit(e) {
                         {letter: "z", cell: "M19"}];
 
           /**
-           * Gets the current Wordle by searching the range of IDs and offsetting to get the word as an array "currentWordArray".
+           * Gets the current Wordle by searching the range of IDs and offsetting to get the word as a string in all lowercase.
            */
           var idRange = settings.getRange("C2");
           var currentId = idRange.getDisplayValues();
@@ -128,8 +128,7 @@ function onEdit(e) {
             }
           }
 
-          var currentWord = settings.getRange("" + wordPosition + "").offset(0, 1).getDisplayValue();
-          var currentWordString = currentWord.toLowerCase();
+          var currentWordle = settings.getRange("" + wordPosition + "").offset(0, 1).getDisplayValue().toLowerCase();
 
           /**
            * Creates an array of objects containing each row letter with a "fill" (background color) designation.
@@ -139,7 +138,6 @@ function onEdit(e) {
            * All letters are defaulted to invalid and compared to the current Wordle letter by letter and given a value in the object.
            */
           row = [];
-          var wordle = currentWordString;
 
           //push each letter into an object and set invalid for all objects
           guessArray.forEach(i => {
@@ -152,18 +150,18 @@ function onEdit(e) {
           //if guess letter matches Wordle letter for current index, change "fill" from invalid to match
           //if a match, replace the letter in the Wordle with a zero
           row.forEach((i, index) => {
-            if (i.letter == wordle[index]) {
+            if (i.letter == currentWordle[index]) {
               i.fill = "match";
-              wordle = wordle.replace(i.letter, "0");
+              currentWordle = currentWordle.replace(i.letter, "0");
             }
           });
 
           //if object letter is included in the Wordle, change "fill" from invalid to valid
           //if valid, replace the letter in the Wordle with a zero
           row.forEach((i) => {
-            if (i.fill != "match" && wordle.includes(i.letter)) {
+            if (i.fill != "match" && currentWordle.includes(i.letter)) {
               i.fill = "valid";
-              wordle = wordle.replace(i.letter, "0");
+              currentWordle = currentWordle.replace(i.letter, "0");
             }
           });
 
