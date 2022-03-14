@@ -183,8 +183,7 @@ function onEdit(e) {
               let key = keyboard.find(key => key.letter == letter).cell;
 
               if (i.fill == "match") {
-                squareOne.offset(
-                  , y).setBackground("#6aaa64");
+                squareOne.offset(offsetIndex, y).setBackground("#6aaa64");
                 squareOne.offset(offsetIndex, y).setFontColor("#ffffff");
                 play.getRange(key).setBackground("#6aaa64");
                 play.getRange(key).setFontColor("#ffffff");
