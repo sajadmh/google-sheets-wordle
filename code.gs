@@ -44,9 +44,9 @@ function newGame() {
   allKeys.setFontColor("#000000");
 
 
-  var idRange = settings.getRange("C2");
-  var currentId = idRange.getDisplayValues();
-  idRange.setValue(parseInt(currentId) + 1);
+  var idCell = settings.getRange("C2");
+  var currentId = idCell.getDisplayValues();
+  idCell.setValue(parseInt(currentId) + 1);
 }
 
 /**
@@ -76,7 +76,7 @@ function onEdit(e) {
       /**
        * Gets the current guess submission for the row submitted by checkbox. Converts the guess to an array.
        */
-      var guessString = play.getRange("C" + index).getDisplayValue().toLowerCase(); //.substring(0, 5) can split result
+      var guessString = play.getRange("C" + index).getDisplayValue().toLowerCase(); //.substring(0, 5) to trim result longer than 5
       var guessArray = guessString.split("");
 
       /**
@@ -114,8 +114,7 @@ function onEdit(e) {
           /**
            * Gets the current Wordle by searching the range of IDs and offsetting to get the word as a string in all lowercase.
            */
-          var idRange = settings.getRange("C2");
-          var currentId = idRange.getDisplayValues();
+          var currentId = settings.getRange("C2").getDisplayValues();
           var searchIdRange = settings.getRange("B5:B").getValues();
           var wordPosition;
           var count = 4; //ID ranges start from row 5
@@ -185,7 +184,7 @@ function onEdit(e) {
 
               if (i.fill == "match") {
                 squareOne.offset(offsetIndex, y).setBackground("#6aaa64");
-                squareOne.offset(offsetIndex, y).setFontColor("#FFFFFF");
+                squareOne.offset(offsetIndex, y).setFontColor("#ffffff");
                 play.getRange(key).setBackground("#6aaa64");
                 play.getRange(key).setFontColor("#ffffff");
               }
