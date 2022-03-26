@@ -48,7 +48,7 @@ The **Apps Script** does everything else.
 
 First create the menu item through the UI `SpreadsheetApp.getUi()`:
 
-```
+```js
 function onOpen() {
   var ui = SpreadsheetApp.getUi();
   ui.createMenu('► Wordle ◄')
@@ -59,7 +59,7 @@ function onOpen() {
 
 The function `newGame` referenced above resets the sheet and moves on to the next Wordle by incrementing the ID:
 
-```
+```js
 function newGame() {
   ...
 }
@@ -67,14 +67,14 @@ function newGame() {
 
 First, we clear the guesses written in column C:
 
-```
+```js
 var inputRange = play.getRange('C3:C13');
 inputRange.clearContent();
 ```
 
 We unchecked the checkboxes in column BE:
 
-```
+```js
 var checkBoxRange = play.getRange('BE3:BE13');
 var checkBoxValues = checkBoxRange.getValues();
 
@@ -90,7 +90,7 @@ checkBoxRange.setValues(checkBoxValues);
 
 We reset the squares and keyboard keys of all their color:
 
-```
+```js
 var allRows = play.getRangeList(["K3", "T3", "AC3", "AL3", "AU3", "K5", "T5", "AC5", "AL5", "AU5", "K7", "T7", "AC7", "AL7", "AU7", "K9", "T9", "AC9", "AL9", "AU9", "K11", "T11", "AC11", "AL11", "AU11", "K13", "T13", "AC13", "AL13", "AU13"]);
 allRows.setBackground("#ffffff");
 allRows.setFontColor("#000000");
@@ -102,7 +102,7 @@ allKeys.setFontColor("#000000");
 
 Then, the ID value in the Settings, column C, row 2 will be incremented by one:
 
-```
+```js
 var idRange = settings.getRange("C2");
 var currentId = idRange.getDisplayValues();
 idRange.setValue(parseInt(currentId) + 1);
@@ -114,7 +114,7 @@ This makes up the newGame function.
 
 We start with an onEdit function:
 
-```
+```js
 function onEdit(e) {
   ...
 }
@@ -122,7 +122,7 @@ function onEdit(e) {
 
 Because we want the script to check if the checkbox has been clicked, we want to gather which row has been checked off (out of the 6). We will store this detail in `var index`. We also want to specify that the checkbox being checked off is in column BE/#57, where the checkboxes sit.
 
-```
+```js
 var index = e.range.getRow();
 var checkboxColumnInt = 57;
 ```
@@ -134,7 +134,7 @@ With these two details, we will refer to the checkbox that is checked off onEdit
 The entire function is then based on three `if` statements. The first two:
 
 
-```
+```js
 if (e.range.getColumn() == checkboxColumnInt) {
   if (runBox.isChecked() == true) {
   }
@@ -145,7 +145,7 @@ Ensures that the checkbox that was checked off onEdit is located in column BE/#5
 
 If the above operations are true, we will execute more code, getting the row's guess and converting it to an array in all lowercase, then checking if it is exactly 5 characters with one more nested `if` statement:
 
-```
+```js
 var guessString = play.getRange("C" + index).getDisplayValue().toLowerCase(); //.substring(0, 5) can split result
 var guessArray = guessString.split("");
 
@@ -162,7 +162,7 @@ If the guess is 5 characters, we want to get the Wordle, compare it with the `gu
 
 To get the Wordle, first we get the ID, i.e. the current game, in the Settings in cell C2, then we will search the range of IDs corresponding to their Wordles (B5:B) with a `for` loop, and offset one cell to the right once we find the ID to get the Wordle as a string in all lowercase.
 
-```
+```js
 var idRange = settings.getRange("C2");
 var currentId = idRange.getDisplayValues();
 var searchIdRange = settings.getRange("B5:B").getValues();
@@ -188,7 +188,7 @@ Then, three forEach functions will (1) add objects to the empty array `row` star
 
 (1) We access the guess that was submitted through its `guessArray`, take each element (letter) from the array (5 letters in total), and push 5 objects in total to the `row` empty array:
 
-```
+```js
 guessArray.forEach(i => {
   row.push({
     letter: i,
@@ -212,7 +212,7 @@ If the guess is `CRANE` and we are in position 2, we are accessing the "A" in `C
 
 This will replace the `fill` from "invalid" to "match" and then remove the letter from the `var currentWordle` by replacing it with a `0` so that it can no longer be considered "valid" in the next forEach function.
 
-```
+```js
 row.forEach((i, index) => {
   if (i.letter == currentWordle[index]) {
     i.fill = "match";
@@ -225,7 +225,7 @@ All matches will become `0`s, so guess `CRANE` for Wordle `TRAIN` would revise t
 
 (3) This will allow the next `forEach` function to see if a letter simply exists (is included) in the Wordle, but are not a position match. We check if the guess letter exists in the `currentWordle` var with `.includes(i.letter)` - `i.letter` referencing the current `letter` of the current object in the `row` array that we are iterating over.
 
-```
+```js
 row.forEach((i) => {
   if (i.fill != "match" && currentWordle.includes(i.letter)) {
     i.fill = "valid";
@@ -244,7 +244,7 @@ We will use a `while` loop to ensure that keep y at a maximum of 36, as we start
 
 we will also use forEach to go through the `row` array of objects. For each object we access, we will check its `letter` and search for that letter in the `keyboard` var, which is an array that points each letter in the mock keyboard to the appropriate cell:
 
-```
+```js
 var keyboard = [{letter: "a", cell: "G17"}, 
                 {letter: "b", cell: "AK19"}, 
                 {letter: "c", cell: "Y19"}, 
@@ -281,7 +281,7 @@ If the `fill` is "valid" then we will set it to yellow, but we must check if the
 
 Last, if the `fill` is "invalid", this time we will check if the letter in the keyboard is either green or yellow already. If so, it will only set the square to gray, but keep the keyboard as-is. This is to ensure that a letter in the keyboard is not made gray when it might have been green or yellow because it was used prior, such as in the word "DEEDS". The first "E" might be green, but the second "E" might be invalid, as the Wordle is "GEARS", and only the first "E" in the guess is correct. The keyboard should turn green, and once traversing over the second "E" it sets the square to gray as it should, but does not color over the keyboard key that should be green.
 
-```
+```js
 var squareOne = play.getRange("K3");
 var y = 0;
 
